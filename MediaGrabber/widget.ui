@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Widget</class>
+ <widget class="QWidget" name="Widget">
+  <property name="windowModality">
+   <enum>Qt::NonModal</enum>
+  </property>
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>640</width>
+    <height>480</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>480</width>
+    <height>360</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>VLC Grabber</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0">
+    <widget class="QLabel" name="label_file">
+     <property name="text">
+      <string>文件：</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1" colspan="8">
+    <widget class="QLineEdit" name="lineEdit_file"/>
+   </item>
+   <item row="0" column="9">
+    <widget class="QPushButton" name="pushButton_file">
+     <property name="text">
+      <string>…</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QLabel" name="label_option">
+     <property name="text">
+      <string>选项：</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1" colspan="9">
+    <widget class="QLineEdit" name="lineEdit_option"/>
+   </item>
+   <item row="2" column="0" colspan="10">
+    <widget class="RFrameWidget" name="widget_render" native="true"/>
+   </item>
+   <item row="3" column="0" colspan="7">
+    <widget class="QSlider" name="hSlider_duration">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="invertedAppearance">
+      <bool>false</bool>
+     </property>
+     <property name="invertedControls">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="7" colspan="3">
+    <widget class="QLabel" name="label_duration">
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="text">
+      <string>[ 00:00:00 / 00:00:00 ]</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0" colspan="2">
+    <widget class="QCheckBox" name="checkBox_audioFile">
+     <property name="text">
+      <string>输出音频（PCM）数据至文件：</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="0">
+    <widget class="QPushButton" name="pushButton_play">
+     <property name="text">
+      <string>播放</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="1" colspan="2">
+    <widget class="QPushButton" name="pushButton_pause">
+     <property name="text">
+      <string>暂停</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="3">
+    <widget class="QPushButton" name="pushButton_stop">
+     <property name="text">
+      <string>停止</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="4">
+    <spacer name="horizontalSpacer">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>40</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="5" column="5">
+    <widget class="QLabel" name="label_volume">
+     <property name="text">
+      <string>音量：</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="6">
+    <widget class="QSlider" name="hSlider_volume">
+     <property name="maximumSize">
+      <size>
+       <width>200</width>
+       <height>16777215</height>
+      </size>
+     </property>
+     <property name="maximum">
+      <number>100</number>
+     </property>
+     <property name="value">
+      <number>100</number>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="7">
+    <widget class="QLabel" name="label_volumeInfo">
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>16777215</height>
+      </size>
+     </property>
+     <property name="text">
+      <string>100%</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="9">
+    <widget class="QCheckBox" name="checkBox_mute">
+     <property name="text">
+      <string>静音</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="9">
+    <widget class="QPushButton" name="pushButton_audioFile">
+     <property name="text">
+      <string>…</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="2" colspan="7">
+    <widget class="QLineEdit" name="lineEdit_audioFile">
+     <property name="readOnly">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>RFrameWidget</class>
+   <extends>QWidget</extends>
+   <header>rframewidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <tabstops>
+  <tabstop>lineEdit_file</tabstop>
+  <tabstop>pushButton_file</tabstop>
+  <tabstop>lineEdit_option</tabstop>
+  <tabstop>checkBox_audioFile</tabstop>
+  <tabstop>lineEdit_audioFile</tabstop>
+  <tabstop>pushButton_audioFile</tabstop>
+  <tabstop>hSlider_duration</tabstop>
+  <tabstop>pushButton_play</tabstop>
+  <tabstop>pushButton_pause</tabstop>
+  <tabstop>pushButton_stop</tabstop>
+  <tabstop>hSlider_volume</tabstop>
+  <tabstop>checkBox_mute</tabstop>
+ </tabstops>
+ <resources/>
+ <connections/>
+</ui>
