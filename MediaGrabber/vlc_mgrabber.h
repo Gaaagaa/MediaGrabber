@@ -104,8 +104,9 @@ public:
      *      6, Callback prototype for audio buffer drain.
      *         xpvt_dptr == X_NULL.
      *      7, Callback prototype for audio volume change.
-     *         xpvt_dptr == { x_float_t : volume software volume (1. = nominal, 0. = mute),
-     *                        x_int32_t : muted flag. }.
+     *         xpvt_dptr == { x_float_t  : volume software volume (1. = nominal, 0. = mute),
+     *                        x_uint32_t : muted flag. }.
+     *         xut_size  == sizeof(x_float_t) + sizeof(x_uint32_t) .
      *
      * @param [in ] xit_ptype : the callback type, @see x_audio_callback_prototype_t.
      * @param [in ] xpvt_dptr : the callback data.
@@ -134,9 +135,9 @@ public:
     /**
      * @brief Callback function type for event.
      *
-     * @param [in ] xit_event   : the callback event code.
-     * @param [in ] xlpt_param1 : param1.
-     * @param [in ] xlpt_param2 : param2.
+     * @param [in ] xit_event   : the callback event code, @see x_event_callback_prototype_t.
+     * @param [in ] xlpt_param1 : reserved parameter.
+     * @param [in ] xlpt_param2 : reserved parameter.
      * @param [in ] xpvt_ctxt   : the user context description.
      */
     typedef x_void_t (* xfunc_event_cbk_t)(x_int32_t xit_event,
@@ -179,26 +180,46 @@ protected:
                                        x_uint32_t * xut_width,
                                        x_uint32_t * xut_height,
                                        x_uint32_t * xut_pitches,
-                                       x_uint32_t * xut_lines);
+                                       x_uint32_t * xut_lines)
+    {
+        vlc_mgrabber_t * this_ptr = *(vlc_mgrabber_t **)xpvt_context;
+        return this_ptr->video_format(xct_chroma,
+                                      xut_width,
+                                      xut_height,
+                                      xut_pitches,
+                                      xut_lines);
+    }
 
     /**
      * Callback prototype to allocate and lock a picture buffer.
      */
     static x_pvoid_t video_lock_cbk(x_pvoid_t xpvt_context,
-                                    x_pvoid_t * xpvt_planes);
+                                    x_pvoid_t * xpvt_planes)
+    {
+        vlc_mgrabber_t * this_ptr = (vlc_mgrabber_t *)xpvt_context;
+        return this_ptr->video_lock(xpvt_planes);
+    }
 
     /**
      * Callback prototype to unlock a picture buffer.
      */
     static x_void_t video_unlock_cbk(x_pvoid_t xpvt_context,
                                      x_pvoid_t xpvt_picture,
-                                     x_pvoid_t const * xpvt_planes);
+                                     x_pvoid_t const * xpvt_planes)
+    {
+        vlc_mgrabber_t * this_ptr = (vlc_mgrabber_t *)xpvt_context;
+        this_ptr->video_unlock(xpvt_picture, xpvt_planes);
+    }
 
     /**
      * Callback prototype to display a picture.
      */
     static x_void_t video_display_cbk(x_pvoid_t xpvt_context,
-                                      x_pvoid_t xpvt_picture);
+                                      x_pvoid_t xpvt_picture)
+    {
+        vlc_mgrabber_t * this_ptr = (vlc_mgrabber_t *)xpvt_context;
+        this_ptr->video_display(xpvt_picture);
+    }
 
     /**
      * Callback prototype to setup the audio playback.
@@ -212,14 +233,22 @@ protected:
     static x_int32_t audio_setup_cbk(x_pvoid_t * xpvt_context,
                                      x_char_t * xct_format,
                                      x_uint32_t * xut_rate,
-                                     x_uint32_t * xut_channels);
+                                     x_uint32_t * xut_channels)
+    {
+        vlc_mgrabber_t * this_ptr = *(vlc_mgrabber_t **)xpvt_context;
+        return this_ptr->audio_setup(xct_format, xut_rate, xut_channels);
+    }
 
     /**
      * Callback prototype for audio playback cleanup.
      * This is called when the media player no longer needs an audio output.
      * \param xpvt_context data pointer as passed to libvlc_audio_set_callbacks() [IN]
      */
-    static x_void_t audio_cleanup_cbk(x_pvoid_t xpvt_context);
+    static x_void_t audio_cleanup_cbk(x_pvoid_t xpvt_context)
+    {
+        vlc_mgrabber_t * this_ptr = *(vlc_mgrabber_t **)xpvt_context;
+        this_ptr->audio_cleanup();
+    }
 
     /**
      * Callback prototype for audio playback.
@@ -231,7 +260,14 @@ protected:
     static x_void_t audio_play_cbk(x_pvoid_t xpvt_context,
                                    const x_pvoid_t xpvt_samples,
                                    x_uint32_t xut_count,
-                                   x_int64_t xit_pts);
+                                   x_int64_t xit_pts)
+    {
+        vlc_mgrabber_t * this_ptr = (vlc_mgrabber_t *)xpvt_context;
+        this_ptr->real_audio_callback(AUDIO_CALLBACK_PLAYBACK,
+                                      xpvt_samples,
+                                      xut_count,
+                                      xit_pts);
+    }
 
     /**
      * Callback prototype for audio pause.
@@ -240,7 +276,11 @@ protected:
      * \param xit_pts time stamp of the pause request (should be elapsed already)
      */
     static x_void_t audio_pause_cbk(x_pvoid_t xpvt_context,
-                                    x_int64_t xit_pts);
+                                    x_int64_t xit_pts)
+    {
+        vlc_mgrabber_t * this_ptr = (vlc_mgrabber_t *)xpvt_context;
+        this_ptr->real_audio_callback(AUDIO_CALLBACK_PAUSE, X_NULL, 0, xit_pts);
+    }
 
     /**
      * Callback prototype for audio resumption (i.e. restart from pause).
@@ -249,7 +289,11 @@ protected:
      * \param xit_pts time stamp of the resumption request (should be elapsed already)
      */
     static x_void_t audio_resume_cbk(x_pvoid_t xpvt_context,
-                                     x_int64_t xit_pts);
+                                     x_int64_t xit_pts)
+    {
+        vlc_mgrabber_t * this_ptr = (vlc_mgrabber_t *)xpvt_context;
+        this_ptr->real_audio_callback(AUDIO_CALLBACK_RESUMPTION, X_NULL, 0, xit_pts);
+    }
 
     /**
      * Callback prototype for audio buffer flush
@@ -257,14 +301,22 @@ protected:
      * \param xpvt_context data pointer as passed to libvlc_audio_set_callbacks() [IN]
      */
     static x_void_t audio_flush_cbk(x_pvoid_t xpvt_context,
-                                    x_int64_t xit_pts);
+                                    x_int64_t xit_pts)
+    {
+        vlc_mgrabber_t * this_ptr = (vlc_mgrabber_t *)xpvt_context;
+        this_ptr->real_audio_callback(AUDIO_CALLBACK_BUFFER_FLUSH, X_NULL, 0, xit_pts);
+    }
 
     /**
      * Callback prototype for audio buffer drain
      * (i.e. wait for pending buffers to be played).
      * \param xpvt_context data pointer as passed to libvlc_audio_set_callbacks() [IN]
      */
-    static x_void_t audio_drain_cbk(x_pvoid_t xpvt_context);
+    static x_void_t audio_drain_cbk(x_pvoid_t xpvt_context)
+    {
+        vlc_mgrabber_t * this_ptr = (vlc_mgrabber_t *)xpvt_context;
+        this_ptr->real_audio_callback(AUDIO_CALLBACK_BUFFER_DRAIN, X_NULL, 0, 0);
+    }
 
     /**
      * Callback prototype for audio volume change.
@@ -274,13 +326,29 @@ protected:
      */
     static x_void_t audio_set_volume_cbk(x_pvoid_t xpvt_context,
                                          x_float_t xft_volume,
-                                         x_uchar_t xct_muted);
+                                         x_uchar_t xct_muted)
+    {
+        vlc_mgrabber_t * this_ptr = (vlc_mgrabber_t *)xpvt_context;
+
+        x_uchar_t xct_buffer[sizeof(x_float_t) + sizeof(x_uint32_t)];
+        *(x_float_t  *)(xct_buffer + 0                ) = xft_volume;
+        *(x_uint32_t *)(xct_buffer + sizeof(x_float_t)) = xct_muted;
+
+        this_ptr->real_audio_callback(AUDIO_CALLBACK_VOLUME_CHANGE,
+                                      xct_buffer,
+                                      sizeof(x_float_t) + sizeof(x_uint32_t),
+                                      0);
+    }
 
     /**
-     * Callback function notification.
+     * Callback function for event notification.
      */
     static x_void_t handle_event_cbk(x_handle_t xht_event,
-                                     x_pvoid_t xpvt_context);
+                                     x_pvoid_t xpvt_context)
+    {
+        vlc_mgrabber_t * this_ptr = (vlc_mgrabber_t *)xpvt_context;
+        this_ptr->handle_event_callback(xht_event);
+    }
 
 	// common data members
 private:
@@ -642,7 +710,7 @@ protected:
     /**
      * @brief 事件回调处理接口。
      */
-    x_void_t handle_event(x_handle_t xht_event);
+    x_void_t handle_event_callback(x_handle_t xht_event);
 
     // data members
 protected:
