@@ -193,6 +193,8 @@ x_void_t Widget::real_video_cbk(x_int32_t xit_ptype, x_vcbk_data_t * xvct_dptr)
 {
     switch (xit_ptype)
     {
+        // FORMAT 回调时，初始化图像渲染的显示控件,
+        // 要注意的是，以 xvct_dptr->xit_height + 16 保证开辟的图像输出缓存足够大
     case vlc_mgrabber_t::VIDEO_CALLBACK_FORMAT:
         if (!ui->widget_render->isStart())
         {
@@ -223,6 +225,8 @@ x_void_t Widget::real_video_cbk(x_int32_t xit_ptype, x_vcbk_data_t * xvct_dptr)
         }
         break;
 
+        // LOCK 回调时，申请图像输出缓存，回写 x_video_callback_data_t 的 xbt_bits_ptr 字段，
+        // 同时设置 xht_handle 字段，是为了在 UNLOCK 回调时，知道原来 bits 缓存关联的对象。
     case vlc_mgrabber_t::VIDEO_CALLBACK_LOCK:
         if (ui->widget_render->isStart())
         {
@@ -232,6 +236,7 @@ x_void_t Widget::real_video_cbk(x_int32_t xit_ptype, x_vcbk_data_t * xvct_dptr)
         }
         break;
 
+        // UNLOCK 回调后，将完成解码后得到的图像帧放入渲染控件，通知其刷新显示
     case vlc_mgrabber_t::VIDEO_CALLBACK_UNLOCK:
         if (ui->widget_render->isStart())
         {
@@ -283,6 +288,8 @@ x_void_t Widget::real_audio_cbk(x_int32_t xit_ptype,
 {
     switch (xit_ptype)
     {
+        // FORMAT 回调，是在 open() 操作后进行的格式通知，
+        // 借此，可以知道后续回调的 PCM 音频数据的 通道数量、采样率、每个采样位数 这些信息
     case vlc_mgrabber_t::AUDIO_CALLBACK_FORMAT:
         if (!m_wfile_writer.is_open())
         {
@@ -296,6 +303,7 @@ x_void_t Widget::real_audio_cbk(x_int32_t xit_ptype,
         }
         break;
 
+        // PLAYBACK 回调，这是回调 PCM 音频数据的
     case vlc_mgrabber_t::AUDIO_CALLBACK_PLAYBACK:
         if (m_wfile_writer.is_open())
         {
