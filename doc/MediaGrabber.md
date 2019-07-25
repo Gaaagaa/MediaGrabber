@@ -1,4 +1,4 @@
-# libvlc —— RGB图像 和 PCM音频 的数据攫取功能[C++代码实现]
+# libvlc —— 攫取 RGB图像 和 PCM音频 的数据[C++代码实现]
 
 在我以前的实际项目中，曾利用 libvlc 去解码音视频媒体数据（如 RTSP、本地文件 等），通过其提供的回调函数接口，攫取 RGB图像 进行图像分析，如 人脸识别、运动检测 等一类的产品应用。除此之外，只要提供适当的 [MRL](https://www.videolan.org/developers/vlc/doc/doxygen/html/group__mrl.html)，配合选项参数，VLC 还可以进行屏幕录制、摄像头图像采集、麦克风音频采集 等功能。
 
