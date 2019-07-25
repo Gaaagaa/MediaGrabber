@@ -324,6 +324,7 @@ x_void_t Widget::real_event_cbk(x_int32_t xit_event,
     {
     case vlc_mgrabber_t::EVENT_CALLBACK_END_REACHED:
         {
+            // 异步方式，通知播放结束事件
             emit real_end_reached();
         }
         break;
