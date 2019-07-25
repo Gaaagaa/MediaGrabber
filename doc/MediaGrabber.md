@@ -12,7 +12,7 @@ Github: [https://github.com/Gaaagaa/MediaGrabber](https://github.com/Gaaagaa/Med
 
 #### 2. 编译提醒
 
-测试程序，是使用 QtCreator 写的 Qt 界面程序，调用我封装好的 **vlc_mgrabber_t** 类实现了一个简单的播放器。MFC的我也写过相应的测试程序，这里就不重复提供代码了。
+这个测试程序，是使用 QtCreator 写的 Qt 界面程序，调用我封装好的 **vlc_mgrabber_t** 类实现了一个简单的播放器。MFC的我也写过相应的测试程序，这里就不重复提供代码了。
 
 因 libvlc 库相关的 dll 文件太多、太大，上传不易，所以在完成编译后，需要另外将 libvlc 的 dll 拷贝至 exe 程序目录中才能运行，我使用的 libvlc 版本是 **vlc-3.0.7.1** 版，下面是下载地址：
 - Win32版本：[ftp://ftp.videolan.org/pub/videolan/vlc/3.0.7.1/win32/vlc-3.0.7.1-win32.7z](ftp://ftp.videolan.org/pub/videolan/vlc/3.0.7.1/win32/vlc-3.0.7.1-win32.7z)
@@ -138,14 +138,14 @@ public:
 };
 ```
 使用的大致流程，如下描述：
-- 1. 在程序启动时，调用 vlc_mgrabber_t::startup(0, NULL) 初始化 libvlc 库。
-- 2. 程序执行过程中，开启一个 vlc_mgrabber 对象 object 的工作流程，需要先后调用如下接口：
+- 1 在程序启动时，调用 vlc_mgrabber_t::startup(0, NULL) 初始化 libvlc 库。
+- 2 程序执行过程中，开启一个 vlc_mgrabber 对象 object 的工作流程，需要先后调用如下接口：
   - 2.1 先使用 object.set_callback(...) 设置回调接口；
   - 2.2 然后用 object.open(...) 操作接口打开工作流程；
   - 2.3 期间，用 set_position(...) 设置当前播放进度，audio_set_mute(...) 设置静音状态，audio_set_volume(...) 设置播放音量，或者还可以进行其他的操作（详细请查看源码）；
   - 2.4 另外，libvlc 内部的工作线程，会通过设置的回调函数接口，回调数据（RGB图像 或 PCM 音频数据，以及 通知事件）；
   - 2.5 最后用 object.close(...) 操作接口关闭工作流程。
-- 3. 程序在退出前，执行 vlc_mgrabber_t::cleanup() 卸载 libvlc 库。
+- 3 程序在退出前，执行 vlc_mgrabber_t::cleanup() 卸载 libvlc 库。
 
 接下来，继续介绍 数据 和 事件 的回调操作接口要如何实现，以及需要注意的问题。
 
@@ -519,4 +519,4 @@ libvlc 的回调操作，对于视频图像来说，并不仅限于 RGB 格式�
 
 对于音频的回调格式，我也曾尝试过按照指定格式进行数据回调（比如，回调 8 位采样点、单通道的 PCM），并未成功。就我目前的工作而言，攫取音频数据的场景不多，这问题也就没过多纠结。
 
-最后，要是上面的代码在使用过程中，有任何问题或建议的请在评论区留言联系我 🙂
+最后，要是上面的代码在使用过程中，有任何问题或建议，欢迎请在评论区留言联系我 🙂
