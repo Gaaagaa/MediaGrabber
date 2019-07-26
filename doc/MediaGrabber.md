@@ -513,7 +513,58 @@ void Widget::on_pushButton_stop_clicked()
 
 ```
 
-## 三、总结
+## 三、几个关键的 libvlc API
+
+集中在 vlc_mgrabber_t.open(...) 的实现流程中，使用到的几个关键 API：
+
+```
+
+LIBVLC_API libvlc_media_t *libvlc_media_new_location(
+                                   libvlc_instance_t *p_instance,
+                                   const char * psz_mrl );
+
+LIBVLC_API
+void libvlc_video_set_callbacks( libvlc_media_player_t *mp,
+                                 libvlc_video_lock_cb lock,
+                                 libvlc_video_unlock_cb unlock,
+                                 libvlc_video_display_cb display,
+                                 void *opaque );
+
+LIBVLC_API
+void libvlc_video_set_format_callbacks( libvlc_media_player_t *mp,
+                                        libvlc_video_format_cb setup,
+                                        libvlc_video_cleanup_cb cleanup );
+
+LIBVLC_API
+void libvlc_audio_set_callbacks( libvlc_media_player_t *mp,
+                                 libvlc_audio_play_cb play,
+                                 libvlc_audio_pause_cb pause,
+                                 libvlc_audio_resume_cb resume,
+                                 libvlc_audio_flush_cb flush,
+                                 libvlc_audio_drain_cb drain,
+                                 void *opaque );
+
+LIBVLC_API
+void libvlc_audio_set_volume_callback( libvlc_media_player_t *mp,
+                                       libvlc_audio_set_volume_cb set_volume );
+
+LIBVLC_API
+void libvlc_audio_set_format_callbacks( libvlc_media_player_t *mp,
+                                        libvlc_audio_setup_cb setup,
+                                        libvlc_audio_cleanup_cb cleanup );
+
+LIBVLC_API libvlc_event_manager_t * libvlc_media_player_event_manager ( libvlc_media_player_t *p_mi );
+
+LIBVLC_API int libvlc_event_attach( libvlc_event_manager_t *p_event_manager,
+                                        libvlc_event_type_t i_event_type,
+                                        libvlc_callback_t f_callback,
+                                        void *user_data );
+
+LIBVLC_API int libvlc_media_player_play ( libvlc_media_player_t *p_mi );
+
+```
+
+## 四、总结
 
 libvlc 的回调操作，对于视频图像来说，并不仅限于 RGB 格式，YUV 格式也是可以的，但这方面我并未去尝试，毕竟接触到的应用场景使用 RGB 格式的图像使用更广泛。至少，对于很多进行图像算法分析的工作，使用 RGB 格式的更多一些。若是需要进行其他格式的图像回调，就需要另行调整代码了。
 
