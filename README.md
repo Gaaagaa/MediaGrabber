@@ -10,5 +10,5 @@
   - 2.5 最后用 object.close(...) 操作接口关闭工作流程。
 - 3 程序在退出前，执行 vlc_mgrabber_t::cleanup() 卸载 libvlc 库。
 
-回调接口的设计，请参看 Widget.h、Widget.cpp 中的相关调用流程。
+回调接口的设计，请参看 Widget.h、Widget.cpp 中的相关调用流程。更为详细的介绍，请参看 doc/MediaGrabber.md 文档的叙述。
 
