@@ -77,7 +77,6 @@ public:
      * @param [in ] xht_instance    : 关联的 libvlc 实例句柄（若为 X_NULL，则取全局的实例句柄）。
      * @param [in ] xszt_media_file : 音视频文件路径名。
      * @param [in ] xszt_options    : 附加的参数选项（使用 " :" （空格+':'）进行分隔的字符串集，为 X_NULL 时，则忽略）。
-     * @param [in ] xut_video_nbits : 视频回调操作时的 RGB 图像位数（24 或 32）。
      *
      * @return x_int32_t
      *         - 成功，返回 0；
@@ -85,8 +84,7 @@ public:
      */
     x_int32_t open(x_handle_t xht_instance,
                    x_cstring_t xszt_media_file,
-                   x_cstring_t xszt_options,
-                   x_uint32_t xut_video_nbits);
+                   x_cstring_t xszt_options);
 
     /**********************************************************/
     /**
@@ -179,6 +177,7 @@ public:
     {
         x_handle_t   xht_handle;   ///< the user-defined handle.
         x_byte_t   * xbt_bits_ptr; ///< the buffer for video frame output.
+        x_int32_t    xit_nbits;    ///< the RGB pixel bits (24 or 32).
         x_int32_t    xit_pitch;    ///< the buffer line stride.
         x_int32_t    xit_width;    ///< the real frame's width.
         x_int32_t    xit_height;   ///< the real frame's height.
@@ -224,28 +223,30 @@ x_void_t Widget::real_video_cbk(x_int32_t xit_ptype, x_vcbk_data_t * xvct_dptr)
     case vlc_mgrabber_t::VIDEO_CALLBACK_FORMAT:
         if (!ui->widget_render->isStart())
         {
+            xvct_dptr->xit_nbits = 32;
 #if 0
             ui->widget_render->startRender(xvct_dptr->xit_width,
-                                           xvct_dptr->xit_height + 16,
+                                           xvct_dptr->xit_height + 32,
                                            32);
 #else
             emit real_start_render(xvct_dptr->xit_width,
-                                   xvct_dptr->xit_height + 16,
+                                   xvct_dptr->xit_height + 32,
                                    32);
 #endif
         }
         else if ((xvct_dptr->xit_width  > ui->widget_render->cxImage()) ||
                  (xvct_dptr->xit_height > ui->widget_render->cyImage()))
         {
+            xvct_dptr->xit_nbits = 32;
 #if 0
             ui->widget_render->stopRender();
             ui->widget_render->startRender(xvct_dptr->xit_width,
-                                           xvct_dptr->xit_height + 16,
+                                           xvct_dptr->xit_height + 32,
                                            32);
 #else
             emit real_stop_render();
             emit real_start_render(xvct_dptr->xit_width,
-                                   xvct_dptr->xit_height + 16,
+                                   xvct_dptr->xit_height + 32,
                                    32);
 #endif
         }
