@@ -224,7 +224,8 @@ vlc_mgrabber_t::vlc_mgrabber_t(void)
     , m_xfunc_audio_cbk(X_NULL)
     , m_xfunc_event_cbk(X_NULL)
     , m_xpvt_xfunc_ctxt(X_NULL)
-    , m_xut_video_nbits(0)
+    , m_xbt_video_parse(X_FALSE)
+    , m_xit_video_nbits(32)
     , m_xit_video_pitch(0)
     , m_xit_video_width(0)
     , m_xit_video_height(0)
@@ -254,7 +255,6 @@ vlc_mgrabber_t::~vlc_mgrabber_t(void)
  * @param [in ] xht_instance    : 关联的 libvlc 实例句柄（若为 X_NULL，则取全局的实例句柄）。
  * @param [in ] xszt_media_file : 音视频文件路径名。
  * @param [in ] xszt_options    : 附加的参数选项（使用 " :" （空格+':'）进行分隔的字符串集，为 X_NULL 时，则忽略）。
- * @param [in ] xut_video_nbits : 视频回调操作时的 RGB 图像位数（24 或 32）。
  *
  * @return x_int32_t
  *         - 成功，返回 0；
@@ -262,8 +262,7 @@ vlc_mgrabber_t::~vlc_mgrabber_t(void)
  */
 x_int32_t vlc_mgrabber_t::open(x_handle_t xht_instance,
                                x_cstring_t xszt_media_file,
-                               x_cstring_t xszt_options,
-                               x_uint32_t xut_video_nbits)
+                               x_cstring_t xszt_options)
 {
     x_int32_t xit_err = -1;
 
@@ -274,8 +273,7 @@ x_int32_t vlc_mgrabber_t::open(x_handle_t xht_instance,
     {
         //======================================
 
-        if ((X_NULL == xszt_media_file) ||
-            ((24 != xut_video_nbits) && (32 != xut_video_nbits)))
+        if (X_NULL == xszt_media_file)
         {
             break;
         }
@@ -337,8 +335,6 @@ x_int32_t vlc_mgrabber_t::open(x_handle_t xht_instance,
 
         //======================================
         // 设置相关的回调操作接口
-
-        m_xut_video_nbits = xut_video_nbits;
 
         // 设置视频回调
         if (X_NULL != m_xfunc_video_cbk)
@@ -459,7 +455,8 @@ x_void_t vlc_mgrabber_t::close(void)
 
     //======================================
 
-    m_xut_video_nbits  = 0;
+    m_xbt_video_parse  = X_FALSE;
+    m_xit_video_nbits  = 32;
     m_xit_video_pitch  = 0;
     m_xit_video_width  = 0;
     m_xit_video_height = 0;
@@ -732,7 +729,7 @@ x_int32_t vlc_mgrabber_t::audio_set_volume(x_int32_t xit_volume)
 // vlc_mgrabber_t : inner invoking
 // 
 
-#if 0
+#if 1
 
 /**********************************************************/
 /**
@@ -766,7 +763,7 @@ x_bool_t vlc_mgrabber_t::video_parse_wh(x_handle_t xht_vlc_mplayer,
         }
 
         libvlc_media_parse(vlc_media_ptr);
-
+#if 0
         libvlc_media_track_info_t * vlc_minfo_ptr = X_NULL;
         x_int32_t xit_es_count = libvlc_media_get_tracks_info(vlc_media_ptr,
                                                               &vlc_minfo_ptr);
@@ -796,6 +793,37 @@ x_bool_t vlc_mgrabber_t::video_parse_wh(x_handle_t xht_vlc_mplayer,
         libvlc_free(vlc_minfo_ptr);
         vlc_minfo_ptr = X_NULL;
 
+        //======================================
+#else
+        libvlc_media_track_t ** vlc_mtrack_ptr = X_NULL;
+        x_uint32_t xut_count = libvlc_media_tracks_get(vlc_media_ptr,
+                                                       &vlc_mtrack_ptr);
+        if (xut_count <= 0)
+        {
+            break;
+        }
+
+        //======================================
+
+        for (x_uint32_t xut_iter = 0; xut_iter < xut_count; ++xut_iter)
+        {
+            if (libvlc_track_video == vlc_mtrack_ptr[xut_iter]->i_type)
+            {
+                xit_cx = (x_int32_t)vlc_mtrack_ptr[xut_iter]->video->i_width;
+                xit_cy = (x_int32_t)vlc_mtrack_ptr[xut_iter]->video->i_height;
+                if ((xit_cx <= 0) || (xit_cy == 0))
+                {
+                    continue;
+                }
+
+                xbt_parse = X_TRUE;
+                break;
+            }
+        }
+
+        libvlc_media_tracks_release(vlc_mtrack_ptr, xut_count);
+        vlc_mtrack_ptr = X_NULL;
+#endif
         //======================================
     } while (0);
 
@@ -911,36 +939,36 @@ x_uint32_t vlc_mgrabber_t::video_format(x_char_t * xct_chroma,
                                         x_uint32_t * xut_pitches,
                                         x_uint32_t * xut_lines)
 {
-    m_xit_video_width  = (x_int32_t)*xut_width;
-    m_xit_video_height = (x_int32_t)*xut_height;
+    //======================================
 
-    if (m_xit_video_height < 0)
+    if (!m_xbt_video_parse)
     {
-        m_xit_video_height = -m_xit_video_height;
-    }
-
-    if (32 == m_xut_video_nbits)
-    {
-        m_xit_video_pitch = 4 * m_xit_video_width;
-        memcpy(xct_chroma, "RV32", 4);
-    }
-    else if (24 == m_xut_video_nbits)
-    {
-        m_xit_video_pitch = ((m_xit_video_width * 24) + 31) / 32 * 4;
-        memcpy(xct_chroma, "RV24", 4);
-    }
-    else
-    {
-        return 0;
+        m_xbt_video_parse = video_parse_wh(m_xht_vlc_mplayer,
+                                           m_xit_video_width,
+                                           m_xit_video_height);
+        if (m_xit_video_height < 0)
+        {
+            m_xit_video_height = -m_xit_video_height;
+        }
     }
 
-    xut_pitches[0] = (x_uint32_t)m_xit_video_pitch;
-    xut_lines  [0] = (x_uint32_t)m_xit_video_height;
+    if (!m_xbt_video_parse)
+    {
+        m_xit_video_width  = (x_int32_t)*xut_width;
+        m_xit_video_height = (x_int32_t)*xut_height;
+    }
+
+    //======================================
+
+#define RGB_PITCH(width, nbits) ((((width) * (x_int32_t)(nbits)) + 31) / 32 * 4)
+
+    m_xit_video_pitch = RGB_PITCH(m_xit_video_width, m_xit_video_nbits);
 
     //======================================
 
     m_xdt_video_data.xht_handle   = X_NULL;
     m_xdt_video_data.xbt_bits_ptr = X_NULL;
+    m_xdt_video_data.xit_nbits    = m_xit_video_nbits;
     m_xdt_video_data.xit_pitch    = m_xit_video_pitch;
     m_xdt_video_data.xit_width    = m_xit_video_width;
     m_xdt_video_data.xit_height   = m_xit_video_height;
@@ -950,7 +978,34 @@ x_uint32_t vlc_mgrabber_t::video_format(x_char_t * xct_chroma,
         m_xfunc_video_cbk(VIDEO_CALLBACK_FORMAT,
                           &m_xdt_video_data,
                           m_xpvt_xfunc_ctxt);
+
+        assert((24 == m_xdt_video_data.xit_nbits) ||
+               (32 == m_xdt_video_data.xit_nbits));
+        assert((m_xdt_video_data.xit_pitch  > 0) &&
+               (m_xdt_video_data.xit_width  > 0) &&
+               (m_xdt_video_data.xit_height > 0));
+        assert(m_xdt_video_data.xit_pitch >=
+               RGB_PITCH(m_xdt_video_data.xit_width,
+                         m_xdt_video_data.xit_nbits));
+
+        m_xit_video_nbits  = m_xdt_video_data.xit_nbits ;
+        m_xit_video_pitch  = m_xdt_video_data.xit_pitch ;
+        m_xit_video_width  = m_xdt_video_data.xit_width ;
+        m_xit_video_height = m_xdt_video_data.xit_height;
     }
+
+#undef RGB_PITCH
+
+    //======================================
+
+    xct_chroma[0]  = 'R';
+    xct_chroma[1]  = 'V';
+    xct_chroma[2]  = (32 == m_xit_video_nbits) ? '3' : '2';
+    xct_chroma[3]  = (32 == m_xit_video_nbits) ? '2' : '4';
+    *xut_width     = (x_uint32_t)m_xit_video_width;
+    *xut_height    = (x_uint32_t)m_xit_video_height;
+    xut_pitches[0] = (x_uint32_t)m_xit_video_pitch;
+    xut_lines  [0] = (x_uint32_t)m_xit_video_height;
 
     //======================================
 
@@ -967,6 +1022,7 @@ x_pvoid_t vlc_mgrabber_t::video_lock(x_pvoid_t * xpvt_planes)
 
     m_xdt_video_data.xht_handle   = X_NULL;
     m_xdt_video_data.xbt_bits_ptr = X_NULL;
+    m_xdt_video_data.xit_nbits    = m_xit_video_nbits;
     m_xdt_video_data.xit_pitch    = m_xit_video_pitch;
     m_xdt_video_data.xit_width    = m_xit_video_width;
     m_xdt_video_data.xit_height   = m_xit_video_height;

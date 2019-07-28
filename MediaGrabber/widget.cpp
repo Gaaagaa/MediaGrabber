@@ -198,28 +198,30 @@ x_void_t Widget::real_video_cbk(x_int32_t xit_ptype, x_vcbk_data_t * xvct_dptr)
     case vlc_mgrabber_t::VIDEO_CALLBACK_FORMAT:
         if (!ui->widget_render->isStart())
         {
+            xvct_dptr->xit_nbits = 32;
 #if 0
             ui->widget_render->startRender(xvct_dptr->xit_width,
-                                           xvct_dptr->xit_height + 16,
+                                           xvct_dptr->xit_height + 32,
                                            32);
 #else
             emit real_start_render(xvct_dptr->xit_width,
-                                   xvct_dptr->xit_height + 16,
+                                   xvct_dptr->xit_height + 32,
                                    32);
 #endif
         }
         else if ((xvct_dptr->xit_width  > ui->widget_render->cxImage()) ||
                  (xvct_dptr->xit_height > ui->widget_render->cyImage()))
         {
+            xvct_dptr->xit_nbits = 32;
 #if 0
             ui->widget_render->stopRender();
             ui->widget_render->startRender(xvct_dptr->xit_width,
-                                           xvct_dptr->xit_height + 16,
+                                           xvct_dptr->xit_height + 32,
                                            32);
 #else
             emit real_stop_render();
             emit real_start_render(xvct_dptr->xit_width,
-                                   xvct_dptr->xit_height + 16,
+                                   xvct_dptr->xit_height + 32,
                                    32);
 #endif
         }
@@ -403,8 +405,7 @@ void Widget::on_pushButton_play_clicked()
 
     if (0 == m_xvlc_mgrabber.open(X_NULL,
                                   xstr_file.c_str(),
-                                  xstr_option.empty() ? X_NULL : xstr_option.c_str(),
-                                  32))
+                                  xstr_option.empty() ? X_NULL : xstr_option.c_str()))
     {
         m_xvlc_mgrabber.audio_set_volume(ui->hSlider_volume->value());
         m_xvlc_mgrabber.audio_set_mute(ui->checkBox_mute->isChecked());

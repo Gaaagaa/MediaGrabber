@@ -57,6 +57,7 @@ public:
     {
         x_handle_t   xht_handle;   ///< the user-defined handle.
         x_byte_t   * xbt_bits_ptr; ///< the buffer for video frame output.
+        x_int32_t    xit_nbits;    ///< the RGB pixel bits (24 or 32).
         x_int32_t    xit_pitch;    ///< the buffer line stride.
         x_int32_t    xit_width;    ///< the real frame's width.
         x_int32_t    xit_height;   ///< the real frame's height.
@@ -388,7 +389,6 @@ public:
      * @param [in ] xht_instance    : 关联的 libvlc 实例句柄（若为 X_NULL，则取全局的实例句柄）。
      * @param [in ] xszt_media_file : 音视频文件路径名。
      * @param [in ] xszt_options    : 附加的参数选项（使用 " :" （空格+':'）进行分隔的字符串集，为 X_NULL 时，则忽略）。
-     * @param [in ] xut_video_nbits : 视频回调操作时的 RGB 图像位数（24 或 32）。
      *
      * @return x_int32_t
      *         - 成功，返回 0；
@@ -396,8 +396,7 @@ public:
      */
     x_int32_t open(x_handle_t xht_instance,
                    x_cstring_t xszt_media_file,
-                   x_cstring_t xszt_options,
-                   x_uint32_t xut_video_nbits);
+                   x_cstring_t xszt_options);
 
     /**********************************************************/
     /**
@@ -415,9 +414,9 @@ public:
     /**
      * @brief 当前视频图像的 RGB 位数（24 或 32）。
      */
-    inline x_uint32_t get_vidoe_nbits(void) const
+    inline x_int32_t get_vidoe_nbits(void) const
     {
-        return m_xut_video_nbits;
+        return m_xit_video_nbits;
     }
 
     /**********************************************************/
@@ -607,7 +606,7 @@ public:
 
     // inner invoking
 protected:
-#if 0
+#if 1
     /**********************************************************/
     /**
      * @brief 执行视频信息解析操作，提取其 宽高信息。
@@ -728,7 +727,8 @@ protected:
 
     typedef x_video_callback_data_t x_vcbk_data_t;
 
-    x_uint32_t     m_xut_video_nbits;  ///< 视频图像的像素位数（24 或 32）
+    x_bool_t       m_xbt_video_parse;  ///< 标识视频参数是否已经被解析
+    x_int32_t      m_xit_video_nbits;  ///< 视频图像的像素位数（24 或 32）
     x_int32_t      m_xit_video_pitch;  ///< 视频图像解码缓存的行步长（字节数）
     x_int32_t      m_xit_video_width;  ///< 视频图像的宽度
     x_int32_t      m_xit_video_height; ///< 视频图像的高度
