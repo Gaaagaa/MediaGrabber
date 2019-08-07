@@ -187,7 +187,7 @@ void RFrameWidget::push(QImage * image, int cx, int cy)
     {
         m_cxyPaint = (((uint32_t)cx & 0x0000FFFF) << 16) | ((uint32_t)cy & 0x0000FFFF);
         m_idxWrite += 1;
-    }
 
-    update();
+        update();
+    }
 }
