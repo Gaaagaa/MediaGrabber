@@ -82,10 +82,10 @@ x_int32_t x_wave_file_writer_t::open(x_cstring_t xct_filename,
             close();
         }
 
-        FILE * xfile = X_NULL;
-        xit_error = fopen_s(&xfile, xct_filename, "wb+");
-        if (0 != xit_error)
+        FILE * xfile = fopen(xct_filename, "wb+");
+        if (X_NULL == xfile)
         {
+            xit_error = -1;
             break;
         }
 
