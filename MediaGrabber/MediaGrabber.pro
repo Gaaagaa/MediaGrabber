@@ -33,6 +33,10 @@ win32 {
     LIBS += -L$$PWD/../lib/vlc/x86 -lvlc -lvlccore
 }
 
+unix {
+    LIBS += -lvlc
+}
+
 CONFIG += c++11
 
 SOURCES += \
