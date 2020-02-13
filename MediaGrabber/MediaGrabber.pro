@@ -29,8 +29,14 @@ QMAKE_CXXFLAGS += -Wno-zero-as-null-pointer-constant
 win32 {
     DEFINES += _WIN32_WINNT=0x0601
     INCLUDEPATH += $$PWD/../include
-    LIBS += -lws2_32
-    LIBS += -L$$PWD/../lib/vlc/x86 -lvlc -lvlccore
+
+    contains(QT_ARCH, i386) {
+        LIBS += -L$$PWD/../lib/vlc/x86
+    } else {
+        LIBS += -L$$PWD/../lib/vlc/x64
+    }
+
+    LIBS += -lws2_32 -lvlc -lvlccore
 }
 
 unix {
