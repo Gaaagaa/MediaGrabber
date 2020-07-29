@@ -27,6 +27,8 @@
 
 int main(int argc, char *argv[])
 {
+    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+
     QApplication xApp(argc, argv);
 
     vlc_mgrabber_t::startup(0, X_NULL);
