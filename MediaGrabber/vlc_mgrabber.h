@@ -537,6 +537,24 @@ public:
     x_void_t set_position(x_float_t xft_pos);
 
     /**
+     * Get the requested movie play rate.
+     * @warning Depending on the underlying media, the requested rate may be
+     * different from the real playback rate.
+     *
+     * \return movie play rate
+     */
+    x_float_t get_rate();
+
+    /**
+     * Set movie play rate
+     *
+     * \param xft_rate movie play rate to set
+     * \return -1 if an error was detected, 0 otherwise (but even then, it might
+     * not actually work depending on the underlying media protocol)
+     */
+    x_int32_t set_rate(x_float_t xft_rate);
+
+    /**
      * Can this media player be paused?
      *
      * \return true if the media player can pause

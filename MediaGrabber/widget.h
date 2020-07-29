@@ -203,6 +203,7 @@ private slots:
     void on_pushButton_pause_clicked();
     void on_pushButton_stop_clicked();
     void on_hSlider_duration_valueChanged(int value);
+    void on_comboBox_rate_currentIndexChanged(const QString &arg1);
     void on_hSlider_volume_valueChanged(int value);
     void on_checkBox_mute_stateChanged(int arg1);
     void on_timer_idle();

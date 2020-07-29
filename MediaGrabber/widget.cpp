@@ -30,6 +30,8 @@
 #include <QMessageBox>
 #include <QFileDialog>
 
+#include <QDebug>
+
 ////////////////////////////////////////////////////////////////////////////////
 
 //====================================================================
@@ -407,6 +409,7 @@ void Widget::on_pushButton_play_clicked()
                                   xstr_file.c_str(),
                                   xstr_option.empty() ? X_NULL : xstr_option.c_str()))
     {
+        m_xvlc_mgrabber.set_rate(ui->comboBox_rate->currentText().toFloat());
         m_xvlc_mgrabber.audio_set_volume(ui->hSlider_volume->value());
         m_xvlc_mgrabber.audio_set_mute(ui->checkBox_mute->isChecked());
     }
@@ -439,6 +442,14 @@ void Widget::on_hSlider_duration_valueChanged(int value)
                 (ui->hSlider_duration->value() - ui->hSlider_duration->minimum()) * 1.0F /
                 (ui->hSlider_duration->maximum() - ui->hSlider_duration->minimum());
         m_xvlc_mgrabber.set_position(xft_pos);
+    }
+}
+
+void Widget::on_comboBox_rate_currentIndexChanged(const QString &arg1)
+{
+    if (m_xvlc_mgrabber.is_open())
+    {
+        m_xvlc_mgrabber.set_rate(arg1.toFloat());
     }
 }
 
@@ -542,3 +553,4 @@ void Widget::on_timer_idle()
 
     //======================================
 }
+
